@@ -1,10 +1,14 @@
 import { type Request , type Response } from "express";
-import z from "zod";
+import z, { email } from "zod";
 import { createUser , loginUser } from "./auth.service.ts";
 
 const loginSchema = z.object({
-    username : z.string().min(3).max(20),
-    password : z.string().min(8).max(20)
+    email : z.string().email(),
+    password : z.string().min(8).max(20),
+});
+
+const loginByTokenSchema = z.object({
+    token : z.string()
 });
 
 const registerSchema = z.object({
@@ -21,9 +25,17 @@ const register = async (req : Request, res : Response) => {
 }
 
 const login = async (req : Request, res : Response) => {
-    const {username , password} = loginSchema.parse(req.body);
+    let token: string | undefined;
+    let email: string | undefined;
+    let password: string | undefined;
+    
+    try{
+        ({ token } = loginByTokenSchema.parse(req.body));
+    } catch(err) {
+        ({email , password} = loginSchema.parse(req.body));
+    }
 
-    const result = await loginUser(username , password);
+    const result = await loginUser(email , password , token);
     res.status(200).json(result);
 }
 
