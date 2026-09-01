@@ -9,10 +9,11 @@ export const createUser = async (username: string, password: string, email: stri
 
 export const loginUser = async (email: string, password: string , token: string | undefined) => {
     // Implementation for logging in a user
-    if(token != undefined) {
+    if(token != undefined){
         const decoded = verifyToken(token);
         return decoded;
-    }else{
+    }else
+    {
         // Handle username/password login
         const result = await pool.query(VERIFY_USER_BY_EMAIL, [email , password]);
         if(result.isCorrect == true){
